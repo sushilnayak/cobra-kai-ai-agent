@@ -1,0 +1,55 @@
+{
+  "file_path": "data/finances.csv",
+  "description": "Financial data for Kobra Kai Karate School locations",
+  "columns": [
+    {
+      "name": "month",
+      "display_name": "Month",
+      "description": "Month of the financial record",
+      "type": "string"
+    },
+    {
+      "name": "year",
+      "display_name": "Year",
+      "description": "Year of the financial record",
+      "type": "integer"
+    },
+    {
+      "name": "loc_cd",
+      "display_name": "Location",
+      "description": "Dojo location code",
+      "type": "string",
+      "mapping": {
+        "RES": "Reseda",
+        "ENC": "Encino",
+        "NHO": "North Hollywood"
+      }
+    },
+    {
+      "name": "revenue",
+      "display_name": "Revenue",
+      "description": "Total monthly revenue in USD",
+      "type": "number",
+      "format": "currency"
+    },
+    {
+      "name": "expenses",
+      "display_name": "Expenses",
+      "description": "Total monthly expenses in USD",
+      "type": "number",
+      "format": "currency"
+    },
+    {
+      "name": "new_students",
+      "display_name": "New Students",
+      "description": "Number of new students enrolled that month",
+      "type": "integer"
+    },
+    {
+      "name": "tot_students",
+      "display_name": "Total Students",
+      "description": "Total number of active students for the month",
+      "type": "integer"
+    }
+  ]
+} 

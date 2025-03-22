@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Victor AI Chat Example</title>
+  <!-- React and ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Axios -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="index.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    #root {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .app-container {
+      padding: 20px 0;
+    }
+    .app-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .app-title {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .app-subtitle {
+      color: #666;
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // Formatted Response Component
+    const FormattedResponse = ({ content }) => {
+      // If content is just a string, render it directly
+      if (typeof content === 'string') {
+        return <p>{content}</p>;
+      }
+
+      // If we have structured content, render it in a more readable format
+      const { sections } = content.formatted_response || { sections: [] };
+
+      if (!sections || sections.length === 0) {
+        // Fallback to the regular response if no structured content
+        return <p>{content.response}</p>;
+      }
+
+      return (
+        <div className="formatted-response">
+          {sections.map((section, idx) => (
+            <div key={idx} className="response-section">
+              {section.title && <h4 className="section-title">{section.title}</h4>}
+              {section.content.map((paragraph, pIdx) => (
+                <p key={pIdx} className="section-paragraph">
+                  {/* Handle markdown bold text */}
+                  {paragraph.includes('**') 
+                    ? paragraph.split(/(\*\*.*?\*\*)/g).map((part, partIdx) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong key={partIdx}>{part.slice(2, -2)}</strong>;
+                        }
+                        return <span key={partIdx}>{part}</span>;
+                      })
+                    : paragraph
+                  }
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    };
+
+    // Import the VictorAIChat component
+    const VictorAIChat = () => {
+      // API base URL - update this to match your API deployment
+      const API_BASE_URL = 'http://localhost:8000';
+      
+      const [messages, setMessages] = React.useState([]);
+      const [input, setInput] = React.useState('');
+      const [isLoading, setIsLoading] = React.useState(false);
+      const [apiConnected, setApiConnected] = React.useState(false);
+      const [vertexConnected, setVertexConnected] = React.useState(false);
+      const [followUps, setFollowUps] = React.useState([]);
+      
+      React.useEffect(() => {
+        // Check API connection on component mount
+        const checkConnection = async () => {
+          try {
+            const response = await axios.get(`${API_BASE_URL}/health`);
+            setApiConnected(response.data.status === 'healthy');
+            setVertexConnected(response.data.vertex_connection === 'connected');
+          } catch (error) {
+            console.error('Failed to connect to API:', error);
+            setApiConnected(false);
+            setVertexConnected(false);
+          }
+        };
+        
+        checkConnection();
+      }, []);
+      
+      const sendMessage = async (text) => {
+        if (!text.trim()) return;
+        
+        // Add user message to chat
+        const userMessage = { role: 'user', content: text };
+        setMessages(prev => [...prev, userMessage]);
+        setInput('');
+        setIsLoading(true);
+        
+        try {
+          const response = await axios.post(`${API_BASE_URL}/chat`, {
+            message: text
+          });
+          
+          // Add AI response to chat with formatted content
+          const aiMessage = { 
+            role: 'assistant', 
+            content: response.data.response,
+            formatted_content: response.data.formatted_response
+          };
+          
+          setMessages(prev => [...prev, aiMessage]);
+          
+          // Set follow-up suggestions if available
+          if (response.data.follow_up_suggestions && 
+              response.data.follow_up_suggestions.length > 0) {
+            setFollowUps(response.data.follow_up_suggestions);
+          } else {
+            setFollowUps([]);
+          }
+        } catch (error) {
+          console.error('Error sending message:', error);
+          // Add error message to chat
+          setMessages(prev => [
+            ...prev, 
+            { 
+              role: 'assistant', 
+              content: 'Sorry, I encountered an error processing your request. Please try again later.'
+            }
+          ]);
+          setFollowUps([]);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      const handleFollowUpClick = (suggestion) => {
+        sendMessage(suggestion);
+      };
+      
+      return (
+        <div className="victor-ai-chat">
+          <div className="chat-header">
+            <h1>Victor AI Chat</h1>
+            <div className={`status ${apiConnected ? 'connected' : 'disconnected'}`}>
+              {apiConnected ? 'API Connected' : 'API Disconnected'}
+              {apiConnected && (
+                <span className={`vertex-status ${vertexConnected ? 'connected' : 'disconnected'}`}>
+                  {vertexConnected ? 'AI Ready' : 'AI Unavailable'}
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="chat-messages">
+            {messages.length === 0 ? (
+              <div className="welcome-message">
+                <p>Welcome to Victor AI Chat! Ask me anything about Victor or instructions.</p>
+              </div>
+            ) : (
+              messages.map((msg, index) => (
+                <div key={index} className={`message ${msg.role}`}>
+                  {msg.role === 'user' ? (
+                    msg.content
+                  ) : (
+                    <FormattedResponse 
+                      content={msg.formatted_content ? 
+                        { response: msg.content, formatted_response: msg.formatted_content } : 
+                        msg.content
+                      } 
+                    />
+                  )}
+                </div>
+              ))
+            )}
+            
+            {isLoading && (
+              <div className="message assistant loading">
+                <div className="loading-indicator">Thinking</div>
+              </div>
+            )}
+          </div>
+          
+          {followUps.length > 0 && !isLoading && (
+            <div className="follow-ups">
+              <h3>Suggested follow-ups:</h3>
+              <div className="follow-up-buttons">
+                {followUps.map((suggestion, index) => (
+                  <button 
+                    key={index} 
+                    className="follow-up-button"
+                    onClick={() => handleFollowUpClick(suggestion)}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <form 
+            className="input-form" 
+            onSubmit={(e) => {
+              e.preventDefault();
+              sendMessage(input);
+            }}
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message here..."
+              disabled={!apiConnected || isLoading}
+            />
+            <button 
+              type="submit" 
+              disabled={!apiConnected || !input.trim() || isLoading}
+            >
+              Send
+            </button>
+          </form>
+        </div>
+      );
+    };
+
+    // Main App Component
+    const App = () => {
+      return (
+        <div className="app-container">
+          <header className="app-header">
+            <h1 className="app-title">Victor AI Assistant</h1>
+            <h2 className="app-subtitle">Your interactive guide to Franchise Management</h2>
+          </header>
+          <VictorAIChat />
+        </div>
+      );
+    };
+
+    // Render the App
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html> 

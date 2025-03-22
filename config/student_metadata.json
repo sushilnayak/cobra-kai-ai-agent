@@ -1,0 +1,59 @@
+{
+  "file_path": "data/students.xlsx",
+  "sheet_name": "Students",
+  "description": "Student enrollment data for Kobra Kai Karate School",
+  "columns": [
+    {
+      "name": "std_id",
+      "display_name": "Student ID",
+      "description": "Unique identifier for each student",
+      "type": "integer",
+      "primary_key": true
+    },
+    {
+      "name": "f_nm",
+      "display_name": "First Name",
+      "description": "Student's first name",
+      "type": "string"
+    },
+    {
+      "name": "l_nm",
+      "display_name": "Last Name",
+      "description": "Student's last name",
+      "type": "string"
+    },
+    {
+      "name": "age",
+      "display_name": "Age",
+      "description": "Student's age in years",
+      "type": "integer"
+    },
+    {
+      "name": "rnk_cd",
+      "display_name": "Rank",
+      "description": "Current belt rank of the student",
+      "type": "string",
+      "mapping": {
+        "WH": "White Belt",
+        "YL": "Yellow Belt",
+        "GR": "Green Belt",
+        "BL": "Blue Belt",
+        "BR": "Brown Belt",
+        "BK": "Black Belt"
+      }
+    },
+    {
+      "name": "dojo_loc",
+      "display_name": "Dojo Location",
+      "description": "Primary dojo location where student trains",
+      "type": "string"
+    },
+    {
+      "name": "enrl_dt",
+      "display_name": "Enrollment Date",
+      "description": "Date when the student enrolled",
+      "type": "date",
+      "format": "YYYY-MM-DD"
+    }
+  ]
+} 

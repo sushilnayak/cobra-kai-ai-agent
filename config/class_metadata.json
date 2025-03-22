@@ -1,0 +1,69 @@
+{
+  "file_path": "data/classes.csv",
+  "description": "Class schedules and details for Kobra Kai Karate School",
+  "columns": [
+    {
+      "name": "cls_id",
+      "display_name": "Class ID",
+      "description": "Unique identifier for each class",
+      "type": "integer",
+      "primary_key": true
+    },
+    {
+      "name": "cls_nm",
+      "display_name": "Class Name",
+      "description": "Name of the karate class",
+      "type": "string"
+    },
+    {
+      "name": "day_cd",
+      "display_name": "Day",
+      "description": "Day of the week when class is held",
+      "type": "string",
+      "mapping": {
+        "MON": "Monday",
+        "TUE": "Tuesday",
+        "WED": "Wednesday",
+        "THU": "Thursday",
+        "FRI": "Friday",
+        "SAT": "Saturday",
+        "SUN": "Sunday"
+      }
+    },
+    {
+      "name": "st_time",
+      "display_name": "Start Time",
+      "description": "Time when the class starts",
+      "type": "time",
+      "format": "HH:MM"
+    },
+    {
+      "name": "end_time",
+      "display_name": "End Time",
+      "description": "Time when the class ends",
+      "type": "time",
+      "format": "HH:MM"
+    },
+    {
+      "name": "ins_id",
+      "display_name": "Instructor ID",
+      "description": "ID of the instructor teaching the class",
+      "type": "integer",
+      "foreign_key": {
+        "table": "instructors",
+        "column": "ins_id"
+      }
+    },
+    {
+      "name": "loc_cd",
+      "display_name": "Location",
+      "description": "Dojo location where the class is held",
+      "type": "string",
+      "mapping": {
+        "RES": "Reseda",
+        "ENC": "Encino",
+        "NHO": "North Hollywood"
+      }
+    }
+  ]
+} 

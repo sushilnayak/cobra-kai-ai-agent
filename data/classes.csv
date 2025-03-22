@@ -1,0 +1,16 @@
+class_id,class_name,day,start_time,end_time,instructor_id,location,max_capacity,current_enrollment,belt_requirement
+1,Beginner Karate,Monday,16:00,17:00,1,Reseda Dojo,20,15,White
+2,Advanced Karate,Tuesday,18:00,19:30,2,Encino Dojo,15,12,Brown or Black
+3,Self Defense,Wednesday,17:00,18:00,1,Reseda Dojo,25,18,Any
+4,Competition Prep,Thursday,19:00,20:30,2,Encino Dojo,10,8,Green or Higher
+5,Women's Self Defense,Friday,16:00,17:00,3,North Hollywood Dojo,20,12,Any
+6,Junior Karate (8-12),Monday,15:00,16:00,4,Reseda Dojo,25,22,Any
+7,Teen Karate (13-17),Wednesday,16:00,17:00,5,Encino Dojo,20,15,Any
+8,Traditional Kata,Friday,18:00,19:00,2,Encino Dojo,15,10,Yellow or Higher
+9,Sparring Techniques,Saturday,10:00,11:30,1,Reseda Dojo,15,13,Orange or Higher
+10,Weapons Training,Saturday,12:00,13:30,2,Encino Dojo,12,8,Green or Higher
+11,Adult Beginners,Tuesday,19:30,20:30,3,North Hollywood Dojo,20,14,White
+12,Strike Training,Thursday,17:30,18:30,1,Reseda Dojo,15,15,Yellow or Higher
+13,Balance & Form,Monday,18:00,19:00,2,Encino Dojo,20,12,Any
+14,Defensive Techniques,Wednesday,19:00,20:00,2,Encino Dojo,15,11,Orange or Higher
+15,Tournament Team,Friday,19:00,21:00,4,Reseda Dojo,10,10,Brown or Black 
