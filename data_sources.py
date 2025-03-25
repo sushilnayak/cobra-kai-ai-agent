@@ -1,3 +1,7 @@
+import pandas as pd
+import json
+import numpy as np
+from sqlalchemy import create_engine, text
 import json
 
 import numpy as np
@@ -7,7 +11,6 @@ from sqlalchemy import create_engine, text
 
 class BaseDataSource:
     """Base class for all data sources."""
-
     def __init__(self, source_path):
         self.source_path = source_path
         self.metadata = None
@@ -28,10 +31,8 @@ class BaseDataSource:
         """Execute a query against this data source"""
         raise NotImplementedError("Subclasses must implement execute_query()")
 
-
 class ExcelDataSource(BaseDataSource):
     """Data source for Excel files."""
-
     def __init__(self, file_path, sheet_name=None):
         super().__init__(file_path)
         self.sheet_name = sheet_name
@@ -125,7 +126,7 @@ class ExcelDataSource(BaseDataSource):
         try:
             # Add safety restrictions to prevent dangerous operations
             safe_globals = {
-                'df': df,
+                'df': df, 
                 'pd': pd,
                 'np': np
             }
@@ -143,10 +144,8 @@ class ExcelDataSource(BaseDataSource):
             print(f"Error executing pandas query: {e}")
             return pd.DataFrame({'error': [str(e)]})
 
-
 class CSVDataSource(BaseDataSource):
     """Data source for CSV files."""
-
     def __init__(self, file_path, delimiter=',', encoding='utf-8'):
         super().__init__(file_path)
         self.delimiter = delimiter
@@ -238,7 +237,7 @@ class CSVDataSource(BaseDataSource):
         try:
             # Add safety restrictions to prevent dangerous operations
             safe_globals = {
-                'df': df,
+                'df': df, 
                 'pd': pd,
                 'np': np
             }
@@ -256,10 +255,8 @@ class CSVDataSource(BaseDataSource):
             print(f"Error executing pandas query: {e}")
             return pd.DataFrame({'error': [str(e)]})
 
-
 class JSONDataSource(BaseDataSource):
     """Data source for JSON files."""
-
     def __init__(self, file_path=None, json_url=None):
         super().__init__(file_path or json_url)
         self.file_path = file_path
@@ -285,7 +282,7 @@ class JSONDataSource(BaseDataSource):
                 data = response.json()
 
             # Apply field mappings if available
-            if self.metadata and self.metadata.get('structure_type') == 'array':
+            if self.metadata and self.metadata.get('structure_type') == 'json':
                 self._apply_mappings(data)
 
             return data
@@ -303,59 +300,39 @@ class JSONDataSource(BaseDataSource):
         if isinstance(data, list):
             for item in data:
                 for field_meta in self.metadata['fields']:
-                    if 'mapping' in field_meta:
-                        # Handle nested paths
-                        path_parts = field_meta['path'].split('.')
-                        target = item
-
-                        # Navigate to the nested field
-                        for i, part in enumerate(path_parts):
-                            if i == len(path_parts) - 1:
-                                # Apply mapping on the final field
-                                if part in target and target[part] in field_meta['mapping']:
-                                    target[part] = field_meta['mapping'][target[part]]
-                            else:
-                                # Navigate deeper if the path exists
-                                if part in target and isinstance(target[part], dict):
-                                    target = target[part]
-                                else:
-                                    break
-
+                    field_name = field_meta['name']
+                    if field_name in item:
+                        # Apply any field-specific formatting
+                        if field_meta.get('type') == 'array':
+                            # Ensure arrays are properly formatted
+                            if not isinstance(item[field_name], list):
+                                item[field_name] = [item[field_name]]
+                        elif field_meta.get('type') == 'object':
+                            # Ensure objects are properly formatted
+                            if not isinstance(item[field_name], dict):
+                                item[field_name] = {}
+            
     def _get_sample_instructor_data(self):
         """Return sample instructor data for testing."""
         return [
             {
-                "ins_id": 1,
-                "name": {
-                    "first": "Johnny",
-                    "last": "Lawrence"
-                },
+                "id": 1,
+                "name": "Johnny Lawrence",
                 "rank": "5th Degree Black Belt",
-                "specialty": "KU",
+                "specialties": ["Offensive Techniques", "Sparring", "Strike Training"],
                 "years_experience": 35,
-                "bio": "Founder of Eagle Fang Karate, former Cobra Kai student."
-            },
-            {
-                "ins_id": 2,
-                "name": {
-                    "first": "Daniel",
-                    "last": "LaRusso"
+                "bio": "Founder of Eagle Fang Karate, former Cobra Kai student.",
+                "classes": ["Advanced Karate", "Strike Training", "Sparring"],
+                "availability": ["Monday", "Tuesday", "Thursday"],
+                "contact": {
+                    "email": "johnny@kobrakai.com",
+                    "phone": "555-123-4567"
                 },
-                "rank": "5th Degree Black Belt",
-                "specialty": "KT",
-                "years_experience": 35,
-                "bio": "Trained by Mr. Miyagi, All Valley Champion 1984."
-            },
-            {
-                "ins_id": 3,
-                "name": {
-                    "first": "Aisha",
-                    "last": "Robinson"
-                },
-                "rank": "2nd Degree Black Belt",
-                "specialty": "SD",
-                "years_experience": 3,
-                "bio": "Top female competitor, specializes in teaching women's classes."
+                "ratings": {
+                    "student_satisfaction": 4.7,
+                    "teaching_effectiveness": 4.8,
+                    "technical_expertise": 4.9
+                }
             }
         ]
 
@@ -398,10 +375,8 @@ class JSONDataSource(BaseDataSource):
             print(f"Error processing JSON query: {e}")
             return {"error": str(e), "data": data[:1] if isinstance(data, list) else data}
 
-
 class SQLDataSource(BaseDataSource):
     """Data source for SQL databases."""
-
     def __init__(self, connection_string, dialect="sqlite"):
         super().__init__(connection_string)
         self.connection_string = connection_string

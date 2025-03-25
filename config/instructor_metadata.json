@@ -4,22 +4,16 @@
   "structure_type": "json",
   "fields": [
     {
-      "name": "ins_id",
+      "name": "id",
       "display_name": "Instructor ID",
       "description": "Unique identifier for the instructor",
       "type": "integer",
       "is_primary_key": true
     },
     {
-      "name": "name.first",
-      "display_name": "First Name",
-      "description": "Instructor's first name",
-      "type": "string"
-    },
-    {
-      "name": "name.last",
-      "display_name": "Last Name",
-      "description": "Instructor's last name",
+      "name": "name",
+      "display_name": "Name",
+      "description": "Instructor's full name",
       "type": "string"
     },
     {
@@ -29,16 +23,10 @@
       "type": "string"
     },
     {
-      "name": "specialty",
-      "display_name": "Specialty",
-      "description": "Instructor's area of expertise",
-      "type": "string",
-      "mapping": {
-        "kata": "Forms and Technique Sequences",
-        "kumite": "Sparring and Fighting Techniques",
-        "self-defense": "Self-Defense Applications",
-        "weapons": "Traditional Weapons Training"
-      }
+      "name": "specialties",
+      "display_name": "Specialties",
+      "description": "Instructor's areas of expertise",
+      "type": "array"
     },
     {
       "name": "years_experience",
@@ -51,6 +39,30 @@
       "display_name": "Biography",
       "description": "Instructor's biographical information",
       "type": "string"
+    },
+    {
+      "name": "classes",
+      "display_name": "Classes",
+      "description": "Classes taught by the instructor",
+      "type": "array"
+    },
+    {
+      "name": "availability",
+      "display_name": "Availability",
+      "description": "Days when the instructor is available",
+      "type": "array"
+    },
+    {
+      "name": "contact",
+      "display_name": "Contact Information",
+      "description": "Instructor's contact details",
+      "type": "object"
+    },
+    {
+      "name": "ratings",
+      "display_name": "Ratings",
+      "description": "Instructor's performance ratings",
+      "type": "object"
     }
   ]
 } 
