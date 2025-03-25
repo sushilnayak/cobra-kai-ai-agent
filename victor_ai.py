@@ -1,7 +1,6 @@
 import json
 import os
 
-import pandas as pd
 from google.cloud import aiplatform
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
@@ -252,7 +251,8 @@ class VictorAI:
                 context.append(f"Error retrieving class data: {e}")
 
         # Instructors data
-        if any(word in query_lower for word in ["instructor", "instructors", "sensei", "teacher", "staff"]):
+        if any(word in query_lower for word in
+               ["instructor", "instructors", "sensei", "teacher", "staff", "belt", "rank"]):
             try:
                 instructor_data = self.data_sources["instructors"].get_data()
                 if instructor_data:
@@ -260,29 +260,20 @@ class VictorAI:
                     if hasattr(self.data_sources["instructors"], 'metadata') and self.data_sources[
                         "instructors"].metadata:
                         formatted_data = []
-                        for instructor in instructor_data[:3]:
+                        for instructor in instructor_data:
                             formatted_instructor = {}
                             if 'fields' in self.data_sources["instructors"].metadata:
                                 for field in self.data_sources["instructors"].metadata['fields']:
                                     field_name = field['name']
                                     display_name = field.get('display_name', field_name)
-                                    # Handle nested fields like name.first
-                                    if '.' in field_name:
-                                        parts = field_name.split('.')
-                                        value = instructor
-                                        for part in parts:
-                                            value = value.get(part, {}) if isinstance(value, dict) else None
-                                        if value is not None:
-                                            formatted_instructor[display_name] = value
-                                    else:
-                                        if field_name in instructor:
-                                            formatted_instructor[display_name] = instructor[field_name]
+                                    if field_name in instructor:
+                                        formatted_instructor[display_name] = instructor[field_name]
                             formatted_data.append(formatted_instructor or instructor)
 
-                        context.append(f"Instructor data (showing 3 of {len(instructor_data)} records):")
+                        context.append(f"Instructor data (showing all {len(instructor_data)} records):")
                         context.append(f"{json.dumps(formatted_data)}")
                     else:
-                        context.append(f"Instructor data: {json.dumps(instructor_data[:3])}")
+                        context.append(f"Instructor data: {json.dumps(instructor_data)}")
                     found_data = True
                 else:
                     context.append("Instructor data: No instructor records found.")
