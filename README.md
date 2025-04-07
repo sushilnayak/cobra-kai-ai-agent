@@ -25,3 +25,6 @@
    ```
    python.exe main.py
    ```
+
+5. Chat with the ChatBot using React based UI available in repo -> chat-ui/victor-ai-chat.html
+
